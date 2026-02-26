@@ -8,6 +8,13 @@ import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
 import com.jfinal.core.JFinal;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 public class Main extends JFinalConfig {
 
     @Override
@@ -41,6 +48,32 @@ public class Main extends JFinalConfig {
     }
 
     public static void main(String[] args) {
-        JFinal.start("src/main/resources/webapp", 8080, "/", 5, Main.class);
+        JFinal.start(resolveWebAppDir(), 8080, "/", 5);
+    }
+
+    private static String resolveWebAppDir() {
+        Path devWebapp = Paths.get("src/main/webapp");
+        if (Files.exists(devWebapp.resolve("index.html"))) {
+            return devWebapp.toString();
+        }
+
+        try {
+            Path tempWebApp = Files.createTempDirectory("jfinal-tetris-webapp");
+            tempWebApp.toFile().deleteOnExit();
+            copyResourceToPath("/webapp/index.html", tempWebApp.resolve("index.html"));
+            return tempWebApp.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to prepare web resources", e);
+        }
+    }
+
+    private static void copyResourceToPath(String resourcePath, Path target) throws IOException {
+        try (InputStream in = Main.class.getResourceAsStream(resourcePath)) {
+            if (in == null) {
+                throw new IOException("Missing resource: " + resourcePath);
+            }
+            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+            target.toFile().deleteOnExit();
+        }
     }
 }

@@ -9,6 +9,8 @@
 
 ## 运行方式
 
+
+
 ```bash
 mvn clean package
 java -jar target/jfinal-tetris-1.0.0.jar
@@ -18,10 +20,12 @@ java -jar target/jfinal-tetris-1.0.0.jar
 
 - http://localhost:8080
 
+
 ## 操作说明
 
 - `←` / `→`：左右移动
 - `↑`：旋转方块
 - `↓`：快速下落
 - `空格`：直接落地
+
 
